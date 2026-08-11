@@ -4,22 +4,6 @@ Aplicación web desarrollada con **Django** para la gestión y administración d
 
 El sistema permite registrar, consultar y eliminar horarios académicos, organizando información como materias, maestros, salones, grupos, días de la semana, turnos y horas de clase.
 
----
-
-
-### Página principal
-
-![Página principal]
-
-### Registro de horario
-
-![Registro de horario]
-
-### Horarios registrados
-
-![Horarios registrados]
-
----
 
 ## Tecnologías utilizadas
 
@@ -31,7 +15,6 @@ El sistema permite registrar, consultar y eliminar horarios académicos, organiz
 - Git
   GitHub
 
----
 
 ##  Funcionalidades
 
@@ -52,7 +35,6 @@ El sistema permite:
 - Mostrar mensajes de error.
 - Administrar la información mediante Django.
 
----
 
 ## Estructura del proyecto
 
