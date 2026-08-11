@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Horarios · EduSchedule</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:         #f6f7fb;
+            --white:      #ffffff;
+            --primary:    #6c63ff;
+            --primary-dk: #4f46e5;
+            --primary-lt: #ede9fe;
+            --accent:     #f59e0b;
+            --accent-lt:  #fef3c7;
+            --teal:       #14b8a6;
+            --teal-lt:    #ccfbf1;
+            --rose:       #f43f5e;
+            --rose-lt:    #ffe4e6;
+            --text:       #1e1b4b;
+            --muted:      #6b7280;
+            --border:     #e5e7eb;
+            --radius:     16px;
+            --radius-sm:  10px;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            color: var(--text);
+        }
+
+        /* ══ SIDEBAR ══ */
+        .layout { display: flex; min-height: 100vh; }
+
+        .sidebar {
+            width: 240px;
+            background: linear-gradient(160deg, #4f46e5 0%, #6c63ff 60%, #a78bfa 100%);
+            padding: 2rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: fixed;
+            top: 0; left: 0; bottom: 0;
+            z-index: 50;
+        }
+
+        .sidebar-logo {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .25rem .5rem;
+        }
+        .logo-circle {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: rgba(255,255,255,.2);
+            display: grid; place-items: center;
+            font-size: 1.4rem;
+            backdrop-filter: blur(4px);
+            border: 1.5px solid rgba(255,255,255,.25);
+        }
+        .logo-text { color: #fff; }
+        .logo-text strong { font-family: 'Sora', sans-serif; font-size: 1rem; display: block; }
+        .logo-text span { font-size: .72rem; opacity: .7; }
+
+        .sidebar-nav { display: flex; flex-direction: column; gap: .4rem; }
+        .nav-label {
+            font-size: .68rem; text-transform: uppercase; letter-spacing: .1em;
+            color: rgba(255,255,255,.5); padding: 0 .75rem; margin-bottom: .25rem;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: .75rem;
+            padding: .65rem .75rem; border-radius: var(--radius-sm);
+            color: rgba(255,255,255,.75);
+            font-weight: 600; font-size: .875rem;
+            cursor: pointer;
+            transition: background .15s, color .15s;
+            text-decoration: none;
+        }
+        .nav-item:hover  { background: rgba(255,255,255,.12); color: #fff; }
+        .nav-item.active { background: rgba(255,255,255,.2);  color: #fff; }
+        .nav-icon { font-size: 1.05rem; width: 20px; text-align: center; }
+
+        .sidebar-footer {
+            margin-top: auto;
+            background: rgba(255,255,255,.1);
+            border-radius: var(--radius-sm);
+            padding: .85rem 1rem;
+            display: flex; align-items: center; gap: .65rem;
+        }
+        .avatar {
+            width: 34px; height: 34px; border-radius: 50%;
+            background: rgba(255,255,255,.25);
+            display: grid; place-items: center;
+            font-size: .9rem; color: #fff;
+            border: 2px solid rgba(255,255,255,.3);
+        }
+        .sidebar-footer .info strong { color: #fff; font-size: .82rem; display: block; }
+        .sidebar-footer .info span   { color: rgba(255,255,255,.6); font-size: .72rem; }
+
+        /* ══ MAIN ══ */
+        .main { margin-left: 240px; flex: 1; display: flex; flex-direction: column; }
+
+        .topbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 40;
+        }
+        .topbar-left h2 { font-family: 'Sora', sans-serif; font-size: 1.1rem; }
+        .topbar-left p  { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+
+        .topbar-right { display: flex; align-items: center; gap: .75rem; }
+        .chip {
+            padding: .35rem .9rem; border-radius: 20px;
+            font-size: .78rem; font-weight: 700;
+            border: none; cursor: pointer;
+        }
+        .chip-purple { background: var(--primary-lt); color: var(--primary-dk); }
+        .chip-amber  { background: var(--accent-lt);  color: #b45309; }
+
+        .content { padding: 2rem; display: flex; flex-direction: column; gap: 1.75rem; }
+
+        /* ══ STAT CARDS ══ */
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+        .stat {
+            background: var(--white);
+            border-radius: var(--radius);
+            padding: 1.25rem 1.4rem;
+            display: flex; align-items: center; gap: 1rem;
+            box-shadow: 0 1px 8px rgba(0,0,0,.05);
+            border: 1px solid var(--border);
+            transition: transform .15s, box-shadow .15s;
+        }
+        .stat:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+
+        .stat-dot {
+            width: 50px; height: 50px; border-radius: 14px;
+            display: grid; place-items: center; font-size: 1.35rem;
+            flex-shrink: 0;
+        }
+        .dot-purple { background: var(--primary-lt); }
+        .dot-amber  { background: var(--accent-lt);  }
+        .dot-teal   { background: var(--teal-lt);    }
+        .dot-rose   { background: var(--rose-lt);    }
+
+        .stat-info p   { font-size: .75rem; color: var(--muted); }
+        .stat-info strong { font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+
+        /* ══ PANELS ══ */
+        .panels { display: grid; grid-template-columns: 380px 1fr; gap: 1.5rem; align-items: start; }
+
+        .panel {
+            background: var(--white);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 8px rgba(0,0,0,.05);
+            overflow: hidden;
+        }
+        .panel-head {
+            padding: 1.1rem 1.5rem;
+            display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .panel-title { display: flex; align-items: center; gap: .6rem; }
+        .panel-title h3 { font-size: .95rem; font-weight: 700; }
+        .panel-title span { font-size: 1.1rem; }
+        .panel-sub { font-size: .75rem; color: var(--muted); margin-top: .1rem; }
+        .count-badge {
+            background: var(--primary-lt); color: var(--primary-dk);
+            border-radius: 20px; padding: .2rem .65rem;
+            font-size: .75rem; font-weight: 700;
+        }
+        .panel-body { padding: 1.4rem 1.5rem; }
+
+        /* ══ FORM ══ */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; }
+        .span2 { grid-column: 1 / -1; }
+
+        .field { display: flex; flex-direction: column; gap: .35rem; }
+        .field label { font-size: .78rem; font-weight: 700; color: var(--text); }
+
+        .field input, .field select {
+            padding: .6rem .9rem;
+            border: 1.5px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: .875rem;
+            font-family: 'Nunito', sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            outline: none;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+        .field input:focus, .field select:focus {
+            border-color: var(--primary);
+            background: var(--white);
+            box-shadow: 0 0 0 3px rgba(108,99,255,.15);
+        }
+        .field input::placeholder { color: #c4c4cc; }
+
+        .divider { height: 1px; background: var(--border); margin: .5rem 0; grid-column: 1/-1; }
+
+        .btn-save {
+            grid-column: 1 / -1;
+            padding: .8rem;
+            background: linear-gradient(135deg, var(--primary-dk), var(--primary));
+            color: #fff; border: none;
+            border-radius: var(--radius-sm);
+            font-family: 'Nunito', sans-serif;
+            font-size: .9rem; font-weight: 800;
+            cursor: pointer;
+            transition: opacity .15s, transform .15s, box-shadow .15s;
+            letter-spacing: .02em;
+        }
+        .btn-save:hover {
+            opacity: .92; transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(108,99,255,.35);
+        }
+
+        /* ══ ALERTS ══ */
+        .alert {
+            padding: .75rem 1rem; border-radius: var(--radius-sm);
+            margin-bottom: 1rem; font-size: .83rem; font-weight: 600;
+            display: flex; align-items: center; gap: .5rem;
+            grid-column: 1/-1;
+        }
+        .alert-ok  { background: #dcfce7; color: #166534; border-left: 4px solid #22c55e; }
+        .alert-err { background: var(--rose-lt); color: #9f1239; border-left: 4px solid var(--rose); }
+
+        /* ══ TABLE ══ */
+        .table-scroll { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+        thead th {
+            padding: .65rem 1rem; text-align: left;
+            background: var(--bg);
+            font-size: .72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .07em;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+        tbody td { padding: .75rem 1rem; border-bottom: 1px solid #f3f4f6; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #fafafa; }
+
+        .subject-cell { display: flex; flex-direction: column; }
+        .subject-name { font-weight: 700; color: var(--text); }
+        .subject-room { font-size: .73rem; color: var(--muted); }
+
+        .badge {
+            display: inline-flex; align-items: center;
+            padding: .2rem .6rem; border-radius: 20px;
+            font-size: .72rem; font-weight: 700;
+        }
+        .b-purple { background: var(--primary-lt); color: var(--primary-dk); }
+        .b-teal   { background: var(--teal-lt);    color: #0f766e; }
+        .b-amber  { background: var(--accent-lt);  color: #92400e; }
+        .b-rose   { background: var(--rose-lt);    color: #be123c; }
+        .b-gray   { background: #f3f4f6;           color: #6b7280; }
+
+        .btn-del {
+            width: 30px; height: 30px; border-radius: 8px;
+            background: var(--rose-lt); color: var(--rose);
+            border: none; cursor: pointer;
+            display: grid; place-items: center;
+            font-size: .85rem;
+            transition: background .15s, transform .1s;
+        }
+        .btn-del:hover { background: #fecdd3; transform: scale(1.1); }
+
+        .empty {
+            text-align: center; padding: 3.5rem 1rem;
+            color: var(--muted);
+        }
+        .empty-icon { font-size: 3rem; margin-bottom: .75rem; opacity: .5; }
+        .empty p { font-size: .875rem; line-height: 1.6; }
+
+        /* turno colors */
+        .t-mat { background:#dbeafe; color:#1d4ed8; }
+        .t-ves { background:#fce7f3; color:#9d174d; }
+        .t-noc { background:#ede9fe; color:#5b21b6; }
+
+        @media (max-width: 1100px) {
+            .stats { grid-template-columns: repeat(2,1fr); }
+            .panels { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; }
+            .stats { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-circle">🏫</div>
+            <div class="logo-text">
+                <strong>EduSchedule</strong>
+                <span>Sistema escolar</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Menú</div>
+            <a class="nav-item active" href="#">
+                <span class="nav-icon">📅</span> Horarios
+            </a>
+            <a class="nav-item" href="/admin/">
+                <span class="nav-icon">⚙️</span> Administración
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="avatar">👤</div>
+            <div class="info">
+                <strong>Coordinador</strong>
+                <span>Administrador</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ── MAIN ── -->
+    <div class="main">
+
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2>Gestión de Horarios</h2>
+                <p>Alta y consulta de horarios escolares</p>
+            </div>
+            <div class="topbar-right">
+                <span class="chip chip-amber">📅 Ciclo 2024–2025</span>
+                <span class="chip chip-purple">🏫 Campus Principal</span>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- STATS -->
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-dot dot-purple">📋</div>
+                    <div class="stat-info">
+                        <p>Total horarios</p>
+                        <strong>{{ horarios.count }}</strong>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div class="stat-dot dot-amber">☀️</div>
+                    <div class="stat-info">
+                        <p>Matutino</p>
+                        <strong>{{ horarios.filter.count|default:"—" }}</strong>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div class="stat-dot dot-teal">🌤️</div>
+                    <div class="stat-info">
+                        <p>Días activos</p>
+                        <strong>5</strong>
+                    </div>
+                </div>
+                <div class="stat">
+                    <div class="stat-dot dot-rose">🎓</div>
+                    <div class="stat-info">
+                        <p>Grupos</p>
+                        <strong>—</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANELS -->
+            <div class="panels">
+
+                <!-- FORM PANEL -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title">
+                            <span>✏️</span>
+                            <div>
+                                <h3>Nuevo Horario</h3>
+                                <p class="panel-sub">Completa todos los campos</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-body">
+                        {% if messages %}
+                            {% for m in messages %}
+                            <div class="alert {% if m.tags == 'success' %}alert-ok{% else %}alert-err{% endif %}">
+                                {% if m.tags == 'success' %}✅{% else %}⚠️{% endif %} {{ m }}
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <form method="POST" novalidate>
+                            {% csrf_token %}
+                            <div class="form-grid">
+
+                                <div class="field span2">
+                                    <label>📚 Materia</label>
+                                    {{ form.materia }}
+                                </div>
+                                <div class="field span2">
+                                    <label>👨‍🏫 Maestro</label>
+                                    {{ form.maestro }}
+                                </div>
+                                <div class="field">
+                                    <label>🚪 Salón</label>
+                                    {{ form.salon }}
+                                </div>
+                                <div class="field">
+                                    <label>🎓 Grupo</label>
+                                    {{ form.grupo }}
+                                </div>
+
+                                <div class="divider"></div>
+
+                                <div class="field">
+                                    <label>📆 Día</label>
+                                    {{ form.dia }}
+                                </div>
+                                <div class="field">
+                                    <label>🌅 Turno</label>
+                                    {{ form.turno }}
+                                </div>
+                                <div class="field">
+                                    <label>🕐 Hora inicio</label>
+                                    {{ form.hora_inicio }}
+                                </div>
+                                <div class="field">
+                                    <label>🕔 Hora fin</label>
+                                    {{ form.hora_fin }}
+                                </div>
+
+                                <button type="submit" class="btn-save">+ Guardar horario</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- TABLE PANEL -->
+                <div class="panel">
+                    <div class="panel-head">
+                        <div class="panel-title">
+                            <span>📋</span>
+                            <div>
+                                <h3>Horarios Registrados</h3>
+                                <p class="panel-sub">Todos los horarios del ciclo</p>
+                            </div>
+                        </div>
+                        <span class="count-badge">{{ horarios.count }} total</span>
+                    </div>
+
+                    {% if horarios %}
+                    <div class="table-scroll">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Materia / Salón</th>
+                                    <th>Maestro</th>
+                                    <th>Día</th>
+                                    <th>Hora</th>
+                                    <th>Turno</th>
+                                    <th>Grupo</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for h in horarios %}
+                                <tr>
+                                    <td>
+                                        <div class="subject-cell">
+                                            <span class="subject-name">{{ h.materia }}</span>
+                                            <span class="subject-room">🚪 {{ h.salon }}</span>
+                                        </div>
+                                    </td>
+                                    <td>{{ h.maestro }}</td>
+                                    <td><span class="badge b-purple">{{ h.dia }}</span></td>
+                                    <td style="white-space:nowrap">
+                                        <span class="badge b-teal">{{ h.hora_inicio|time:"H:i" }} – {{ h.hora_fin|time:"H:i" }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if h.turno == 'Matutino' %}t-mat{% elif h.turno == 'Vespertino' %}t-ves{% else %}t-noc{% endif %}">
+                                            {{ h.turno }}
+                                        </span>
+                                    </td>
+                                    <td><span class="badge b-gray">{{ h.grupo }}</span></td>
+                                    <td>
+                                        <form method="POST" action="{% url 'eliminar_horario' h.pk %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-del" onclick="return confirm('¿Eliminar?')" title="Eliminar">✕</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="empty">
+                        <div class="empty-icon">📭</div>
+                        <p>Sin horarios aún.<br>Registra el primero con el formulario.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
