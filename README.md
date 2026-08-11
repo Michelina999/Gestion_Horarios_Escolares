@@ -37,20 +37,20 @@ El sistema permite registrar, consultar y eliminar horarios académicos, organiz
 
 El sistema permite:
 
-- ✅ Registrar horarios escolares.
-- ✅ Consultar horarios registrados.
-- ✅ Registrar materias.
-- ✅ Registrar maestros.
-- ✅ Registrar salones.
-- ✅ Registrar grupos.
-- ✅ Seleccionar el día de la semana.
-- ✅ Seleccionar el turno.
-- ✅ Definir hora de inicio.
-- ✅ Definir hora de fin.
-- ✅ Eliminar horarios.
-- ✅ Mostrar mensajes de confirmación.
-- ✅ Mostrar mensajes de error.
-- ✅ Administrar la información mediante Django.
+- Registrar horarios escolares.
+- Consultar horarios registrados.
+- Registrar materias.
+- Registrar maestros.
+- Registrar salones.
+- Registrar grupos.
+- Seleccionar el día de la semana.
+- Seleccionar el turno.
+- Definir hora de inicio.
+- Definir hora de fin.
+- Eliminar horarios.
+- Mostrar mensajes de confirmación.
+- Mostrar mensajes de error.
+- Administrar la información mediante Django.
 
 ---
 
